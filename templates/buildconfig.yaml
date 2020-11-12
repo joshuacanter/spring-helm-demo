@@ -1,0 +1,37 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: {{ .Release.Name }}
+  name: {{ .Release.Name }} 
+spec:
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ .Release.Name }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    git:
+      ref: {{ .Values.git.ref }}
+      uri: {{ .Values.git.uri }}
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: java:8
+        namespace: openshift
+    type: Source
+  triggers:
+  - imageChange:
+    type: ImageChange
+  - type: ConfigChange
+  - generic:
+      secret: 3b1afd8905d4916c
+    type: Generic
+  - github:
+      secret: 3239ffcb0863df29
+    type: GitHub
